@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define SonarQube environment variables
-        SONARQUBE_SERVER = 'SonarQube'  // This is the name you gave to your SonarQube instance in Jenkins settings
+        SONARQUBE_SERVER = 'sonar-server'  // This is the name you gave to your SonarQube instance in Jenkins settings
         GITHUB_REPO = 'https://github.com/yahialm/CICD-pipeline-with-Jenkins-ArgoCD-Sonar-and-K8s.git'  // Replace with your repository URL
         SONAR_PROJECT_KEY = 'sqp_2417fd786eb483b86114e93c1afb3b8adf7e6310'  // Replace with your SonarQube project key
         SONARQUBE_TOKEN = credentials('sonar-token')  // Define SonarQube token stored in Jenkins credentials
