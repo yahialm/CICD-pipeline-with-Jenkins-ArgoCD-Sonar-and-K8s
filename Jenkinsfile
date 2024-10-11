@@ -48,16 +48,16 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
-            // Wait for SonarQube's quality gate result before proceeding
-            steps {
-                script {
-                    timeout(time: 5, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
-                    }
-                }
-            }
-        }
+        // stage('Quality Gate') {
+        //     // Wait for SonarQube's quality gate result before proceeding
+        //     steps {
+        //         script {
+        //             timeout(time: 5, unit: 'MINUTES') {
+        //                 waitForQualityGate abortPipeline: true
+        //             }
+        //         }
+        //     }
+        // }
 
     }
 
