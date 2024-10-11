@@ -8,7 +8,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'sqp_2417fd786eb483b86114e93c1afb3b8adf7e6310' 
         SONARQUBE_TOKEN = credentials('sonar-token')
         DOCKERHUB_CREDENTIALS = credentials('docker-hub-credentials-id') 
-        DOCKER_IMAGE_NAME = 'yahialm/spring'  
+        DOCKER_IMAGE_NAME = 'yahialm/spring'
     }
 
     stages {
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image from the Dockerfile
-                    sh 'docker build -t ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} .'
+                    sh "docker build -t ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ."
                 }
             }
         }
@@ -64,7 +64,7 @@ pipeline {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS}") {
                         // Push the Docker image to DockerHub
-                        sh 'docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}'
+                        sh "docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                     }
                 }
             }
