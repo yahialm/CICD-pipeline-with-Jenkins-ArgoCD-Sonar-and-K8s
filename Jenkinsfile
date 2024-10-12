@@ -62,8 +62,12 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
+                    // Define file path where the report should be saved
+                    def trivyReportFile = "trivy-report-${env.BUILD_NUMBER}.txt"
                     // Run Trivy to scan the Docker image
-                    def trivyOutput = sh(script: "trivy image ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}", returnStdout: true).trim()
+                    def trivyOutput = sh(script: "trivy image ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyReportFile}", returnStdout: true).trim()
+                    // Archive the report in Jenkins for later reference
+                    archiveArtifacts artifacts: trivyReportFile
                     // Display Trivy scan results
                     println trivyOutput
                 }
