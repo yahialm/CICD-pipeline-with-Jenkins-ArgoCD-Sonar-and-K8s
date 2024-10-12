@@ -59,6 +59,17 @@ pipeline {
             }
         }
 
+        stage('Trivy Scan') {
+            steps {
+                script {
+                    // Run Trivy to scan the Docker image
+                    def trivyOutput = sh(script: "trivy image ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}", returnStdout: true).trim()
+                    // Display Trivy scan results
+                    println trivyOutput
+                }
+            }
+        }
+
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
