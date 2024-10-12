@@ -72,7 +72,7 @@ pipeline {
                     // println trivyOutput
                     // Save Trivy scan result as an HTML report
                     def trivyHtmlReportFile = "trivy-report-${env.BUILD_NUMBER}.html"
-                    sh "trivy image --format template --template @contrib/html.tpl ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}"
+                    sh "trivy image --format template --template /home/yahialm/html.tpl ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}"
                     
                     // Publish the HTML report (requires HTML Publisher Plugin)
                     publishHTML([
