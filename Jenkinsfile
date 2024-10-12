@@ -63,14 +63,28 @@ pipeline {
             steps {
                 script {
                     // Define file path where the report should be saved
-                    def trivyReportFile = "trivy-report-${env.BUILD_NUMBER}.txt"
+                    // def trivyReportFile = "trivy-report-${env.BUILD_NUMBER}.txt"
                     // Run Trivy to scan the Docker image
-                    def trivyOutput = sh(script: "trivy image ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyReportFile}", returnStdout: true).trim()
+                    // def trivyOutput = sh(script: "trivy image ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyReportFile}", returnStdout: true).trim()
                     // Archive the report in Jenkins for later reference
-                    archiveArtifacts artifacts: trivyReportFile
+                    // archiveArtifacts artifacts: trivyReportFile
                     // Display Trivy scan results
-                    println trivyOutput
-                }
+                    // println trivyOutput
+                    // Save Trivy scan result as an HTML report
+                    def trivyHtmlReportFile = "trivy-report-${env.BUILD_NUMBER}.html"
+                    sh "trivy image --format template --template @contrib/html.tpl ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}"
+                    
+                    // Publish the HTML report (requires HTML Publisher Plugin)
+                    publishHTML([
+                        reportName: 'Trivy Security Scan',
+                        reportDir: '',
+                        reportFiles: trivyHtmlReportFile,
+                        keepAll: true,
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        includes: '**/*'
+                    ])
+                    }
             }
         }
 
