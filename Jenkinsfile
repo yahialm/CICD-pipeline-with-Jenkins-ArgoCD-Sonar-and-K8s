@@ -43,7 +43,7 @@ pipeline {
                     // Run SonarQube analysis
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
                         sh "./mvnw sonar:sonar " +
-                           "-Dsonar.projectKey=${SONAR_PROJECT_KEY}" +
+                           "-Dsonar.projectKey=${SONAR_PROJECT_KEY} " +
                            "-Dsonar.login=${SONARQUBE_TOKEN}"
                     }
                 }
