@@ -62,10 +62,8 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry("https://registry.hub.docker.com", "${DOCKERHUB_CREDENTIALS}") {
-                        // Push the Docker image to DockerHub
-                        sh "docker push ${DOCKER_IMAGE_NAME}:latest"
-                    }
+                    // Push the Docker image to DockerHub
+                    sh "docker push ${DOCKER_IMAGE_NAME}:latest"    
                 }
             }
         }
