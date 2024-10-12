@@ -7,7 +7,7 @@ pipeline {
         GITHUB_REPO = 'https://github.com/yahialm/CICD-pipeline-with-Jenkins-ArgoCD-Sonar-and-K8s.git' 
         SONAR_PROJECT_KEY = 'sqp_2417fd786eb483b86114e93c1afb3b8adf7e6310' 
         SONARQUBE_TOKEN = credentials('sonar-token')
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub-credentials-id') 
+        DOCKERHUB_CREDENTIALS = "docker-hub-credentials-id" 
         DOCKER_IMAGE_NAME = 'yahialm/spring'
     }
 
@@ -42,9 +42,9 @@ pipeline {
                 script {
                     // Run SonarQube analysis
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                        sh './mvnw sonar:sonar ' +
-                           '-Dsonar.projectKey=${SONAR_PROJECT_KEY} ' +
-                           '-Dsonar.login=${SONARQUBE_TOKEN}'
+                        sh "./mvnw sonar:sonar " +
+                           "-Dsonar.projectKey=${SONAR_PROJECT_KEY}" +
+                           "-Dsonar.login=${SONARQUBE_TOKEN}"
                     }
                 }
             }
@@ -62,7 +62,7 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS}") {
+                    docker.withRegistry("https://registry.hub.docker.com", "${DOCKERHUB_CREDENTIALS}") {
                         // Push the Docker image to DockerHub
                         sh "docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                     }
