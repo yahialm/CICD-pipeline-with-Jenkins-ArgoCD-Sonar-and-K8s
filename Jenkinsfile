@@ -95,11 +95,11 @@ pipeline {
     }
 
     post {
-        // always {
-        //     // Archive the built artifacts and test results
-        //     archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-        //     junit '**/target/surefire-reports/*.xml'
-        // }
+        always {
+             // Archive the built artifacts and test results
+             archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+             // junit '**/target/surefire-reports/*.xml'
+        }
         failure {
             // Notify on failure
             echo 'Build failed!'
