@@ -51,17 +51,27 @@ pipeline {
             }
         }
 
-        stage('Publish OWASP Dependency Check Report') {
+        stage('OWASP Dependency Check Scan and Publish') {
             steps {
-                publishHTML(target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'target',
-                    reportFiles: 'dependency-check-report.html',
-                    reportName: 'OWASP Dependency Check Report',
-                    odcAdditionalArgs: "--nvdApiKey ${NVD_API_KEY}"
-                ])
+                script {
+                    // Run the OWASP Dependency-Check scan
+                    dependencyCheckAnalyzer failBuildOnCVSS: 7,  
+                                            isAutoupdateDisabled: false,
+                                            outdir: 'dependency-check-report',
+                                            scanpath: "${WORKSPACE}",  // Update this path to the correct project directory
+                                            includeHtmlReports: true,
+                                            odcAdditionalArgs: "--nvdApiKey ${NVD_API_KEY}" // Use the NVD API key
+
+                    // Publish the OWASP Dependency-Check HTML report
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'dependency-check-report',  // The output directory where the report is saved
+                        reportFiles: 'dependency-check-report.html',  // The name of the HTML report file
+                        reportName: 'OWASP Dependency Check Report'
+                    ])
+                }
             }
         }
 
