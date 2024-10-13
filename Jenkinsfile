@@ -54,12 +54,12 @@ pipeline {
         stage('OWASP Dependency Check Scan and Publish') {
             steps {
                 script {
-                    dependencyCheck additionalArguments: " 
+                    dependencyCheck additionalArguments: """
                     -o './' 
                     -s './'
                     -f 'ALL' 
                     --prettyPrint
-                    --nvdApiKey ${NVD_API_KEY} ", odcInstallation: 'owasp-dependency-check'
+                    --nvdApiKey ${NVD_API_KEY} """, odcInstallation: 'owasp-dependency-check'
 
                     dependencyCheckPublisher pattern: 'dependency-check-report.html'
                 }
