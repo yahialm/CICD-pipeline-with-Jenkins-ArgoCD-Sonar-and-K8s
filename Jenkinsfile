@@ -70,7 +70,12 @@ pipeline {
                     // archiveArtifacts artifacts: trivyReportFile
                     // Display Trivy scan results
                     // println trivyOutput
+
+
                     // Save Trivy scan result as an HTML report
+                    // Please use the path indicated @/usr/... as the default path to html.tpl in every project
+                    // Trivy automatically install the templates there 
+                    // DO NOT CHANGE THE PATH !!! Refer to: https://stackoverflow.com/a/76288013
                     def trivyHtmlReportFile = "trivy-report-${env.BUILD_NUMBER}.html"
                     sh """trivy image --format template --template "@/usr/local/share/trivy/templates/html.tpl" ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}"""
                     
