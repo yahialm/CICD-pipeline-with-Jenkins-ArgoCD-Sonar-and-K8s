@@ -7,6 +7,7 @@ pipeline {
         GITHUB_REPO = 'https://github.com/yahialm/CICD-pipeline-with-Jenkins-ArgoCD-Sonar-and-K8s.git' 
         SONAR_PROJECT_KEY = 'sqp_2417fd786eb483b86114e93c1afb3b8adf7e6310' 
         SONARQUBE_TOKEN = credentials('sonar-token')
+        NVD_API_KEY = credentials('NVD-API')
         DOCKERHUB_CREDENTIALS = "docker-hub-credentials-id" // This should be the actual ID used in docker.withRegistry, see: https://www.jenkins.io/doc/book/pipeline/docker/ last section on how to use withRegistry
         DOCKER_IMAGE_NAME = 'yahialm/spring'
     }
@@ -47,6 +48,20 @@ pipeline {
                            "-Dsonar.login=${SONARQUBE_TOKEN}"
                     }
                 }
+            }
+        }
+
+        stage('Publish OWASP Dependency Check Report') {
+            steps {
+                publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'target',
+                    reportFiles: 'dependency-check-report.html',
+                    reportName: 'OWASP Dependency Check Report',
+                    odcAdditionalArgs: "--nvdApiKey ${NVD_API_KEY}"
+                ])
             }
         }
 
@@ -121,6 +136,7 @@ pipeline {
         always {
              // Archive the built artifacts and test results
              archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+             dependencyCheckPublisher pattern: 'dependency-check-report/*.html'
              // junit '**/target/surefire-reports/*.xml'
         }
         failure {
