@@ -55,12 +55,7 @@ pipeline {
             steps {
                 script {
                     // Run the OWASP Dependency-Check scan
-                    dependencyCheckAnalyzer failBuildOnCVSS: 7,  
-                                            isAutoupdateDisabled: false,
-                                            outdir: 'dependency-check-report',
-                                            scanpath: "${WORKSPACE}",  // Update this path to the correct project directory
-                                            includeHtmlReports: true,
-                                            odcAdditionalArgs: "--nvdApiKey ${NVD_API_KEY}" // Use the NVD API key
+                    dependencyCheck additionalArguments: "--scan target/", "--nvdApiKey ${NVD_API_KEY}", odcInstallation: 'owasp-dependency-check'
 
                     // Publish the OWASP Dependency-Check HTML report
                     publishHTML(target: [
