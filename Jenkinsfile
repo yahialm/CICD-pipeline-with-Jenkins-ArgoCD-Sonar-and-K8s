@@ -54,18 +54,14 @@ pipeline {
         stage('OWASP Dependency Check Scan and Publish') {
             steps {
                 script {
-                    // Run the OWASP Dependency-Check scan
-                    dependencyCheck additionalArguments: "--scan target/", "--nvdApiKey ${NVD_API_KEY}", odcInstallation: 'owasp-dependency-check'
+                    dependencyCheck additionalArguments: " 
+                    -o './' 
+                    -s './'
+                    -f 'ALL' 
+                    --prettyPrint
+                    --nvdApiKey ${NVD_API_KEY} ", odcInstallation: 'owasp-dependency-check'
 
-                    // Publish the OWASP Dependency-Check HTML report
-                    publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'dependency-check-report',  // The output directory where the report is saved
-                        reportFiles: 'dependency-check-report.html',  // The name of the HTML report file
-                        reportName: 'OWASP Dependency Check Report'
-                    ])
+                    dependencyCheckPublisher pattern: 'dependency-check-report.html'
                 }
             }
         }
@@ -141,7 +137,7 @@ pipeline {
         always {
              // Archive the built artifacts and test results
              archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-             dependencyCheckPublisher pattern: 'dependency-check-report/*.html'
+             // dependencyCheckPublisher pattern: 'dependency-check-report/*.html'
              // junit '**/target/surefire-reports/*.xml'
         }
         failure {
