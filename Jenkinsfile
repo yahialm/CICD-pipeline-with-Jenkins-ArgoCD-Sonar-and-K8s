@@ -59,7 +59,7 @@ pipeline {
                     -s './'
                     -f 'ALL' 
                     --prettyPrint
-                    --nvdApiKey ${NVD_API_KEY} """, odcInstallation: 'owasp-dependency-check'
+                    --nvdApiKey ${NVD_API_KEY} """, odcInstallation: "dependency-check"
 
                     dependencyCheckPublisher pattern: 'dependency-check-report.html'
                 }
