@@ -5,7 +5,7 @@ pipeline {
         // Define SonarQube environment variables
         SONARQUBE_SERVER = 'sonar-server'  
         GITHUB_REPO = 'https://github.com/yahialm/CICD-pipeline-with-Jenkins-ArgoCD-Sonar-and-K8s.git' 
-        SONAR_PROJECT_KEY = 'sqp_2417fd786eb483b86114e93c1afb3b8adf7e6310' 
+        SONAR_PROJECT_KEY = credentials('sonar-project') 
         SONARQUBE_TOKEN = credentials('sonar-token')
         NVD_API_KEY = credentials('NVD-API')
         DOCKERHUB_CREDENTIALS = "docker-hub-credentials-id" // This should be the actual ID used in docker.withRegistry, see: https://www.jenkins.io/doc/book/pipeline/docker/ last section on how to use withRegistry
