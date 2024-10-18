@@ -148,6 +148,9 @@ pipeline {
         always {
              // Archive the built artifacts and test results
              archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+
+            // Clean the workspace
+            cleanWs()
         }
         failure {
             // Notify on failure
