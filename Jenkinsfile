@@ -124,19 +124,19 @@ pipeline {
                              rm -rf ArgoCD-pipeline-manifest-files
                         fi
                         git clone https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git
-                        cd ArgoCD-pipeline-manifest-files
+                        cd ArgoCD-pipeline-manifest-files/k3s
                         """
 
                         // Update deployment.yaml with the new Docker image
                         sh """
-                            sed -i 's|image: .*|image: ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|' k3s/deployment.yaml
+                            sed -i 's|image: .*|image: ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|' deployment.yaml
                         """
 
                         // Commit and push the changes back to the repo
                         sh """
                             git config --global user.email "${GITHUB_EMAIL}"
                             git config --global user.name "yahialm"
-                            git add k3s/deployment.yaml
+                            git add deployment.yaml
                             git commit -m "Updated image to ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                             git push https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git main
                         """
