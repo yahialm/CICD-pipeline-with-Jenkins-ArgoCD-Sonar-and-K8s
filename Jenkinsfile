@@ -10,7 +10,7 @@ pipeline {
         SONARQUBE_TOKEN = credentials('sonar-token')
         NVD_API_KEY = credentials('NVD-API')
         GITHUB_EMAIL = credentials('github-email')
-        GITHUB_TOKEN = credentials('github-token')
+        // GITHUB_TOKEN = credentials('github-token')
         DOCKERHUB_CREDENTIALS = "docker-hub-credentials-id" // This should be the actual ID used in docker.withRegistry, see: https://www.jenkins.io/doc/book/pipeline/docker/ last section on how to use withRegistry
         DOCKER_IMAGE_NAME = 'yahialm/spring'
     }
@@ -96,7 +96,7 @@ pipeline {
                     // Trivy automatically install the templates there 
                     // DO NOT CHANGE THE PATH !!! Refer to: https://stackoverflow.com/a/76288013
                     def trivyHtmlReportFile = "trivy-report-${env.BUILD_NUMBER}.html"
-                    sh """trivy image --format template --template "@/usr/local/share/trivy/templates/html.tpl" ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}"""
+                    sh """trivy image --format template --template "@/usr/local/share/trivy/templates/html.tpl" --skip-dirs ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}"""
                     
                     // Publish the HTML report (requires HTML Publisher Plugin)
                     publishHTML([
@@ -126,40 +126,31 @@ pipeline {
         stage('Update Kubernetes Manifests') {
             steps {
                 script {
-                    // Clone the manifests repo
-                    git branch: 'main', url: "${GITHUB_REPO_MANIFEST}"
+                    // Use credentials to authenticate with GitHub
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        // Clone the private manifest repo using the token
+                        sh """
+                            git clone https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git
+                            cd ArgoCD-pipeline-manifest-files
+                        """
 
-                    // Update deployment.yaml with the new image tag
-                    sh """
-                        sed -i 's|image: .*|image: ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|' k3s/deployment.yaml
-                    """
+                        // Update deployment.yaml with the new Docker image
+                        sh """
+                            sed -i 's|image: .*|image: ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|' k3s/deployment.yaml
+                        """
 
-
-                    // Commit and push the changes
-                    // TODO: Use email and username as jenkins credentials
-                    sh """
-                        git config --global user.email "${GITHUB_EMAIL}"
-                        git config --global user.name "yahialm"
-                        git add k3s/deployment.yaml
-                        git commit -m "Updated image to ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
-                        git push https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git main
-                    """
+                        // Commit and push the changes back to the repo
+                        sh """
+                            git config --global user.email "${GITHUB_EMAIL}"
+                            git config --global user.name "yahialm"
+                            git add k3s/deployment.yaml
+                            git commit -m "Updated image to ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                            git push https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git main
+                        """
+                    }
                 }
             }
         }
-
-        // stage('Quality Gate') {
-        //     // Wait for SonarQube's quality gate result before proceeding
-        //     steps {
-        //         script {
-        //             timeout(time: 5, unit: 'MINUTES') {
-        //                 waitForQualityGate abortPipeline: true
-        //             }
-        //         }
-        //     }
-        // }
-
-    }
 
     post {
         always {
