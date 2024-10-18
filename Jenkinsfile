@@ -133,7 +133,7 @@ pipeline {
                             cd ArgoCD-pipeline-manifest-files
                             git config --global user.email "${GITHUB_EMAIL}"
                             git config --global user.name "yahialm"
-                            git add deployment.yaml
+                            git add k3s/deployment.yaml
                             git commit -m "Updated image to ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                             git push https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git main
                         """
