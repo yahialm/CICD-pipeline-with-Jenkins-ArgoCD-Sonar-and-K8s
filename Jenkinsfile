@@ -120,8 +120,11 @@ pipeline {
                     withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                         // Clone the private manifest repo using the token
                         sh """
-                            git clone https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git
-                            cd ArgoCD-pipeline-manifest-files
+                        if [ -d "ArgoCD-pipeline-manifest-files" ]; then
+                             rm -rf ArgoCD-pipeline-manifest-files
+                        fi
+                        git clone https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git
+                        cd ArgoCD-pipeline-manifest-files
                         """
 
                         // Update deployment.yaml with the new Docker image
