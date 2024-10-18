@@ -158,14 +158,15 @@ pipeline {
              archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
              // dependencyCheckPublisher pattern: 'dependency-check-report/*.html'
              // junit '**/target/surefire-reports/*.xml'
-        }
+            }
         failure {
             // Notify on failure
             echo 'Build failed!'
-        }
+            }
         success {
             // Notify on success
             echo 'Build succeeded!'
+            }
         }
     }
 }
