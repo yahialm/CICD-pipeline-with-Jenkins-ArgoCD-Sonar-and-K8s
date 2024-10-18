@@ -4,10 +4,13 @@ pipeline {
     environment {
         // Define SonarQube environment variables
         SONARQUBE_SERVER = 'sonar-server'  
-        GITHUB_REPO = 'https://github.com/yahialm/CICD-pipeline-with-Jenkins-ArgoCD-Sonar-and-K8s.git' 
+        GITHUB_REPO = 'https://github.com/yahialm/CICD-pipeline-with-Jenkins-ArgoCD-Sonar-and-K8s.git'
+        GITHUB_REPO_MANIFEST = 'https://github.com/yahialm/ArgoCD-pipeline-manifest-files.git'
         SONAR_PROJECT_KEY = credentials('sonar-project') 
         SONARQUBE_TOKEN = credentials('sonar-token')
         NVD_API_KEY = credentials('NVD-API')
+        GITHUB_EMAIL = credentials('github-email')
+        GITHUB_TOKEN = credentials('github-token')
         DOCKERHUB_CREDENTIALS = "docker-hub-credentials-id" // This should be the actual ID used in docker.withRegistry, see: https://www.jenkins.io/doc/book/pipeline/docker/ last section on how to use withRegistry
         DOCKER_IMAGE_NAME = 'yahialm/spring'
     }
@@ -116,6 +119,30 @@ pipeline {
                         // Push the Docker image to DockerHub
                         sh "docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                     }
+                }
+            }
+        }
+
+        stage('Update Kubernetes Manifests') {
+            steps {
+                script {
+                    // Clone the manifests repo
+                    git branch: 'main', url: "${GITHUB_REPO_MANIFEST}"
+
+                    // Update deployment.yaml with the new image tag
+                    sh """
+                        sed -i 's|image: .*$|image: ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|' k3s/deployment.yaml
+                    """
+
+                    // Commit and push the changes
+                    // TODO: Use email and username as jenkins credentials
+                    sh """
+                        git config --global user.email "${GITHUB_EMAIL}"
+                        git config --global user.name "yahialm"
+                        git add k3s/deployment.yaml
+                        git commit -m "Updated image to ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                        git push https://${GITHUB_TOKEN}@github.com/yahialm/ArgoCD-pipeline-manifest-files.git main
+                    """
                 }
             }
         }
