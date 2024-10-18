@@ -11,7 +11,7 @@ pipeline {
         NVD_API_KEY = credentials('NVD-API')
         GITHUB_EMAIL = credentials('github-email')
         // GITHUB_TOKEN = credentials('github-token')
-        DOCKERHUB_CREDENTIALS = "docker-hub-credentials-id" // This should be the actual ID used in docker.withRegistry, see: https://www.jenkins.io/doc/book/pipeline/docker/ last section on how to use withRegistry
+        DOCKERHUB_CREDENTIALS = "docker-hub-credentials-id" 
         DOCKER_IMAGE_NAME = 'yahialm/spring'
     }
 
@@ -26,7 +26,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                // Give the permissions to mvnw
+                // Give permissions to mvnw
                 sh 'chmod +x mvnw'
 
                 // Build the Spring Boot project using Maven
@@ -36,7 +36,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                // Run the tests using Maven
+                // Run tests using Maven
                 sh './mvnw test'
             }
         }
@@ -81,24 +81,14 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
-                    // Define file path where the report should be saved
-                    // def trivyReportFile = "trivy-report-${env.BUILD_NUMBER}.txt"
-                    // Run Trivy to scan the Docker image
-                    // def trivyOutput = sh(script: "trivy image ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyReportFile}", returnStdout: true).trim()
-                    // Archive the report in Jenkins for later reference
-                    // archiveArtifacts artifacts: trivyReportFile
-                    // Display Trivy scan results
-                    // println trivyOutput
-
-
                     // Save Trivy scan result as an HTML report
-                    // Please use the path indicated @/usr/... as the default path to html.tpl in every project
-                    // Trivy automatically install the templates there 
-                    // DO NOT CHANGE THE PATH !!! Refer to: https://stackoverflow.com/a/76288013
                     def trivyHtmlReportFile = "trivy-report-${env.BUILD_NUMBER}.html"
-                    sh """trivy image --format template --template "@/usr/local/share/trivy/templates/html.tpl" --skip-dirs ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}"""
+                    sh """
+                        trivy image --format template --template @/usr/local/share/trivy/templates/html.tpl \
+                        ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} > ${trivyHtmlReportFile}
+                    """
                     
-                    // Publish the HTML report (requires HTML Publisher Plugin)
+                    // Publish the HTML report
                     publishHTML([
                         reportName: 'Trivy Security Scan',
                         reportDir: '',
@@ -108,14 +98,14 @@ pipeline {
                         alwaysLinkToLastBuild: true,
                         includes: '**/*'
                     ])
-                    }
+                }
             }
         }
 
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    withDockerRegistry([ credentialsId: "docker-hub-credentials-id", url: "https://index.docker.io/v1/" ]) {
+                    withDockerRegistry([credentialsId: "docker-hub-credentials-id", url: "https://index.docker.io/v1/"]) {
                         // Push the Docker image to DockerHub
                         sh "docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                     }
@@ -152,21 +142,20 @@ pipeline {
             }
         }
 
+    }
+
     post {
         always {
              // Archive the built artifacts and test results
              archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-             // dependencyCheckPublisher pattern: 'dependency-check-report/*.html'
-             // junit '**/target/surefire-reports/*.xml'
-            }
+        }
         failure {
             // Notify on failure
             echo 'Build failed!'
-            }
+        }
         success {
             // Notify on success
             echo 'Build succeeded!'
-            }
         }
     }
 }
