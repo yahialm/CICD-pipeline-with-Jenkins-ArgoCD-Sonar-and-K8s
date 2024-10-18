@@ -130,7 +130,10 @@ pipeline {
                     git branch: 'main', url: "${GITHUB_REPO_MANIFEST}"
 
                     // Update deployment.yaml with the new image tag
-                    sh " sed -i 's|image: .*$|image: ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|' k3s/deployment.yaml "
+                    sh """
+                        sed -i 's|image: .*|image: ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}|' k3s/deployment.yaml
+                    """
+
 
                     // Commit and push the changes
                     // TODO: Use email and username as jenkins credentials
