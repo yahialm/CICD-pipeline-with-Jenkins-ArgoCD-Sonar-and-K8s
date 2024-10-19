@@ -129,6 +129,9 @@ pipeline {
                         """
 
                         // Commit and push the changes back to the repo
+                        // Each sh command has its own specific context, e.g if cd Argo... command was executed individually wrapped
+                        // in its own sh """""", that might create problems for the next commands because they will  
+                        // be executed in the default path which is the workspace but not inside ArgoCD-pipeline-manifest-files
                         sh """
                             cd ArgoCD-pipeline-manifest-files
                             git config --global user.email "${GITHUB_EMAIL}"
