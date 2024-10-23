@@ -286,7 +286,7 @@ Security checks are performed using OWASP Dependency Check and Trivy:
 
 ## Workflow Summary
 
-![cicd_workflow](docs/images/workflow.png)
+![cicd_workflow](docs/screenshots/pipeline.png)
 
 1. **Code Checkout**: Jenkins checks out the latest version of the Spring Boot application from the Git repository.
 
